@@ -147,7 +147,6 @@ process_numbers(HeadFile, DimX, DimY, [HeadNum|TailNum], HeadSum) :-
 	process_numbers(TailFile, DimX, DimY, TailNum, TailSum),
 
 	number_string(Num, HeadNum),
-	write(Num), nl,
 	HeadSum is Num + TailSum.
 
 process_numbers(HeadFile, DimX, DimY, [HeadNum|TailNum], HeadSum) :-
