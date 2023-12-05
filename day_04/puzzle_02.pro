@@ -11,7 +11,6 @@ gen_list(CardId, Len, List) :-
 	FinalId is CardId + Len,
 	numlist(FirstId, FinalId, List).
 
-
 update_dict([], [], Dict) :- Dict = count{}.
 update_dict([HeadId|TailId], [HeadCount|TailCount], HeadDict) :-
 	update_dict(TailId, TailCount, TailDict),
@@ -37,19 +36,8 @@ process_lines([HeadLine|TailLine], [HeadCount|TailCount]) :-
 	% generate Ids that needs to be copied
 	gen_list(Id, BagLen, HeadCount),
 
-	% recurrence
+	% recursion
 	process_lines(TailLine, TailCount).
-
-%max_key(Dict, Max) :-
-%	dict_keys(Dict, Keys),
-%	max_list(Keys, Max).
-
-%process_counts([], _, 0).
-%process_counts([HeadCount|TailCount], HeadCount, Sum) :-
-%	max_key(HeadCount, LastId),
-%	SelfId is LastId + 1,
-%	SelfCount is HeadCount.get(SelfId, 1),
-%	process_counts(TailCount, TailCount, Sum).
 
 process_dict([], _, Dict, Dict).
 process_dict([HeadCount|TailCount], Id, HeadDict, DictOut) :-
@@ -64,7 +52,6 @@ process_dict([HeadCount|TailCount], Id, HeadDict, DictOut) :-
 	% recursion
 	process_dict(TailCount, Id, TailDict, DictOut).
 
-
 counts_to_dict([], Dict, _, Dict).
 counts_to_dict([HeadCount|TailCount], HeadDict, HeadId, OutDict) :-
 	TailId is HeadId + 1,
@@ -75,7 +62,6 @@ counts_to_dict([HeadCount|TailCount], HeadDict, HeadId, OutDict) :-
 
 	process_dict(HeadCount, HeadId, Dict, TailDict),
 	counts_to_dict(TailCount, TailDict, TailId, OutDict).
-
 
 main :-
 	read_file_to_string('./input_02', File, []),
