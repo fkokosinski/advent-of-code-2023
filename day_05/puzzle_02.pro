@@ -202,6 +202,4 @@ main :-
 	write(Out), nl,
         halt.
 
-:- 
-	set_prolog_flag(stack_limit, 29_147_483_648),
-	initialization(main).
+:- initialization(main).
