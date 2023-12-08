@@ -9,13 +9,10 @@ process_race([[TimeStr, RecordStr]|TailRace], HeadOut) :-
 	number_string(Time, TimeStr),
 	number_string(Record, RecordStr),
 
-	findall(X, (
-		numlist(0, Time, SpeedUps),
-		member(SpeedUp, SpeedUps),
-		X is SpeedUp * (Time - SpeedUp),
-		X > Record
-	), BeatList),
-	length(BeatList, Out),
+	Delta is Time^2 - 4 * Record,
+	X1 is (Time + sqrt(Delta)) / 2,
+	X2 is (Time - sqrt(Delta)) / 2,
+	Out is ceil(X1 - 1) - floor(X2 + 1) + 1,
 
 	process_race(TailRace, TailOut),
 	HeadOut is TailOut * Out.
@@ -47,8 +44,4 @@ main :-
 	write(Out), nl,
         halt.
 
-:- 
-	% increase the stack limit to 6 GiB because I'm too lazy to write an
-	% optimized solution
-	set_prolog_flag(stack_limit, 6_442_450_944),
-	initialization(main).
+:- initialization(main).
