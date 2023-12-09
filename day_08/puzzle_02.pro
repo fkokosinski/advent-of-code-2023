@@ -41,7 +41,7 @@ find_lcm(HeadLCM, [H|T], Out) :-
 	find_lcm(TailLCM, T, Out).
 
 main :-
-	read_file_to_string('./input_01', File, []),
+	read_file_to_string('./input_02', File, []),
 	split_string(File, '\n', '\n', [Moves|Lines]),
 	parse_lines(Lines),
 
