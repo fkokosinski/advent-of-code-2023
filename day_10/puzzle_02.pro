@@ -160,25 +160,6 @@ main :-
 	findall(Field, (member(Field, Fields), is_inside(Field, Path, Matrix)), Inside),
 	length(Inside, Out),
 
-	% visualize output
-	%forall(address_matrix(Matrix, X, Y, Elem), (
-	%	(
-	%		X =:= 0 ->
-	%		nl
-	%	;
-	%		true
-	%	),
-	%	(
-	%		member([X, Y], Path) ->
-	%		write("#")
-	%	;
-	%		member([X, Y], Inside) ->
-	%		write("I")
-	%	;
-	%		write("O")
-	%	)
-	%)), nl,
-
 	write(Out), nl,
         halt.
 
