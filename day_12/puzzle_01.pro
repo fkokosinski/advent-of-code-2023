@@ -14,9 +14,9 @@ parse_lines([HeadLine|TailLine], [[ConditionStr, ConditionNum]|TailOut]) :-
 
 constraint_forbidden(X, Y, F) :- (F #< X) #\/ (Y #< F).
 
-process_line([], _, []).
-process_line([HeadNum|TailNum], Str, [HeadOut|TailOut]) :-
-	process_line(TailNum, Str, TailOut),
+process_line([], _Str, _Sum, []).
+process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
+	process_line(TailNum, Str, Sum, TailOut),
 
 	% constrait for interval length
 	[X, Y] = HeadOut,
@@ -35,7 +35,8 @@ process_line([HeadNum|TailNum], Str, [HeadOut|TailOut]) :-
 	% constraings for interval min/max position
 	string_length(Str, Len),
 	Y #< Len,
-	X #>= 0,
+	sum_list(TailNum, SumNum),
+	X #>= Sum - SumNum - HeadNum,
 
 	% constrait in relation to the previous interval
 	(
@@ -63,11 +64,12 @@ process_lines([], Sum, Sum).
 process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 	% check required positions
 	[String, Numbers] = HeadLine,
+	sum_list(Numbers, SumNum),
 	string_codes(String, Codes),
 	findall(Idx, nth0(Idx, Codes, 35), Required),
 
 	% get possible intervals
-	findall(Out, (process_line(Numbers, String, Out), check_required(Required, Out)), Intervals), !,
+	findall(Out, (process_line(Numbers, String, SumNum, Out), check_required(Required, Out)), Intervals), !,
 
 	% count score
 	length(Intervals, Count),
