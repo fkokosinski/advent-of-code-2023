@@ -18,7 +18,7 @@ process_line([], _Str, _Sum, []).
 process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
 	process_line(TailNum, Str, Sum, TailOut),
 
-	% constrait for interval length
+	% constraint for interval length
 	[X, Y] = HeadOut,
 	Y #= X + HeadNum - 1,
 
@@ -32,23 +32,20 @@ process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
 		true
 	),
 
-	% constraings for interval min/max position
+	% constraints for interval min/max position
 	string_length(Str, Len),
 	Y #< Len,
 	sum_list(TailNum, SumNum),
 	X #>= Sum - SumNum - HeadNum,
 
-	% constrait in relation to the previous interval
+	% constraint in relation to the previous interval
 	(
 		TailNum \= [] ->
 		[[LastX, _LastY]|_] = TailOut,
 		Y #< LastX - 1
 	;
 		true
-	),
-
-	indomain(X),
-	indomain(Y).
+	).
 
 check_required([], _).
 check_required([HeadReq|TailReq], Intervals) :-
@@ -69,7 +66,7 @@ process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 	findall(Idx, nth0(Idx, Codes, 35), Required),
 
 	% get possible intervals
-	findall(Out, (process_line(Numbers, String, SumNum, Out), check_required(Required, Out)), Intervals), !,
+	findall(Out, (process_line(Numbers, String, SumNum, Out), flatten(Out, Lab), labeling([], Lab), check_required(Required, Out)), Intervals), !,
 
 	% count score
 	length(Intervals, Count),
