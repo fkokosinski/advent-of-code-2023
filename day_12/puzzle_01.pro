@@ -13,10 +13,13 @@ parse_lines([HeadLine|TailLine], [[ConditionStr, ConditionNum]|TailOut]) :-
 	parse_lines(TailLine, TailOut).
 
 constraint_forbidden(X, Y, F) :- (F #< X) #\/ (Y #< F).
+constraint_forbidden_incl(X, Y, F) :- (F #=< X) #\/ (Y #=< F).
+constraint_first(X, F) :- X #=< F.
+constraint_last(Y, F) :- Y #>= F.
 
-process_line([], _Str, _Sum, []).
-process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
-	process_line(TailNum, Str, Sum, TailOut),
+process_line([], _Req, _Str, _Sum, []).
+process_line([HeadNum|TailNum], Req, Str, Sum, [HeadOut|TailOut]) :-
+	process_line(TailNum, Req, Str, Sum, TailOut),
 
 	% constraint for interval length
 	[X, Y] = HeadOut,
@@ -32,6 +35,7 @@ process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
 		true
 	),
 
+
 	% constraints for interval min/max position
 	string_length(Str, Len),
 	Y #< Len,
@@ -42,19 +46,21 @@ process_line([HeadNum|TailNum], Str, Sum, [HeadOut|TailOut]) :-
 	(
 		TailNum \= [] ->
 		[[LastX, _LastY]|_] = TailOut,
-		Y #< LastX - 1
-	;
-		true
-	).
+		Y #< LastX - 1,
 
-check_required([], _).
-check_required([HeadReq|TailReq], Intervals) :-
-	findall(1, (member([X, Y], Intervals), X =< HeadReq, HeadReq =< Y), Reqs),
-	(
-		Reqs \= [],
-		check_required(TailReq, Intervals)
+		% constraint for required positions
+		maplist(constraint_forbidden_incl(Y, LastX), Req),
+		(
+			% constraint for first interval
+			Sum - SumNum - HeadNum =:= 0 ->
+			maplist(constraint_first(X), Req)
+		;
+			true
+
+		)
 	;
-		fail
+		% constraint for last interval
+		maplist(constraint_last(Y), Req)
 	).
 
 process_lines([], Sum, Sum).
@@ -66,7 +72,11 @@ process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 	findall(Idx, nth0(Idx, Codes, 35), Required),
 
 	% get possible intervals
-	findall(Out, (process_line(Numbers, String, SumNum, Out), flatten(Out, Lab), labeling([], Lab), check_required(Required, Out)), Intervals), !,
+	findall(Out, (
+		process_line(Numbers, Required, String, SumNum, Out),
+		flatten(Out, Lab),
+		labeling([], Lab)
+	), Intervals), !,
 
 	% count score
 	length(Intervals, Count),
