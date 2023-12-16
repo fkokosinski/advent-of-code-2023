@@ -63,6 +63,10 @@ process_line([HeadNum|TailNum], Req, Str, Sum, [HeadOut|TailOut]) :-
 		maplist(constraint_last(Y), Req)
 	).
 
+only_first([], []).
+only_first([[X, _Y]|TailIntervals], [X|TailOut]) :-
+	only_first(TailIntervals, TailOut).
+
 process_lines([], Sum, Sum).
 process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 	% check required positions
@@ -73,13 +77,13 @@ process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 
 	% add constraints
 	process_line(Numbers, Required, String, SumNum, Out),
-	flatten(Out, Vars),
+	only_first(Out, Vars),
 
 	% count the number of solutions
-	findall(1, labeling([], Vars), Ss), !,
+	findall(S, (labeling([upto_in(S)], Vars)), Ss), !,
 
 	% count score
-	length(Ss, Count),
+	sum_list(Ss, Count),
 	TailSum is Count + HeadSum,
 	process_lines(TailLine, TailSum, Sum).
 
