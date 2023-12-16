@@ -71,15 +71,15 @@ process_lines([HeadLine|TailLine], HeadSum, Sum) :-
 	string_codes(String, Codes),
 	findall(Idx, nth0(Idx, Codes, 35), Required),
 
-	% get possible intervals
-	findall(Out, (
-		process_line(Numbers, Required, String, SumNum, Out),
-		flatten(Out, Lab),
-		labeling([], Lab)
-	), Intervals), !,
+	% add constraints
+	process_line(Numbers, Required, String, SumNum, Out),
+	flatten(Out, Vars),
+
+	% count the number of solutions
+	findall(1, labeling([], Vars), Ss), !,
 
 	% count score
-	length(Intervals, Count),
+	length(Ss, Count),
 	TailSum is Count + HeadSum,
 	process_lines(TailLine, TailSum, Sum).
 
